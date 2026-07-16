@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Cumpleaños de Jacky</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Caveat:wght@500;700&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   EDITABLE CONFIG (also see JS CONFIG object near bottom)
+   ============================================================ */
+:root{
+  --paper:#efece6;
+  --paper-2:#f7f5f0;
+  --ink:#1b1a19;
+  --pink:#ff3e8e;
+  --pink-2:#ff8fc0;
+  --lilac:#b98bea;
+  --silver-1:#e9ebef;
+  --silver-2:#aeb4c2;
+  --gold:#f6c667;
+  --shadow: 0 18px 40px -12px rgba(27,26,19,.35);
+  --radius: 26px;
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;}
+body{
+  font-family:'Quicksand', sans-serif;
+  background:
+    radial-gradient(circle at 15% 10%, rgba(255,143,192,.18), transparent 40%),
+    radial-gradient(circle at 85% 90%, rgba(185,139,234,.18), transparent 45%),
+    var(--paper);
+  color:var(--ink);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* subtle cardstock grain */
+body::before{
+  content:"";
+  position:fixed; inset:0;
+  pointer-events:none;
+  opacity:.5;
+  mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/></svg>");
+  z-index:0;
+}
+
+h1,h2,h3{margin:0;}
+.script{font-family:'Caveat', cursive;}
+.shout{font-family:'Luckiest Guy', cursive; letter-spacing:.5px;}
+
+/* ============================================================
+   PART I — ENVELOPE INTRO CON IMAGEN PNG
+   ============================================================ */
+#envelope-scene{
+  position:fixed; inset:0; z-index:100;
+  display:flex; align-items:center; justify-content:center;
+  background: #1a1a2e;
+  transition: opacity .7s ease .35s, visibility .7s ease .35s;
+  cursor:pointer;
+}
+#envelope-scene.hide{ opacity:0; visibility:hidden; pointer-events:none; }
+
+.envelope-wrap{
+  position:relative;
+  width:min(78vw, 340px);
+  transition: transform 1.8s cubic-bezier(.22,.9,.32,1.15);
+  pointer-events:none;
+  user-select:none;
+  perspective: 900px;
+}
+.envelope-wrap.zoom{ 
+  transform: scale(3.5) translateY(-4vh); 
+  opacity:0;
+}
+
+/* Flip card — empieza mostrando el DORSO */
+.envelope-flipper {
+  position: relative;
+  width: 100%;
+  transform-style: preserve-3d;
+  /* Empieza volteado para mostrar el dorso */
+  transform: rotateY(180deg);
+  transition: transform 0.85s cubic-bezier(.4,0,.2,1);
+}
+/* Al hacer click, vuelve al frente (la imagen del sobre) */
+.envelope-flipper.flipped {
+  transform: rotateY(0deg);
+}
+.envelope-face {
+  width: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.envelope-face.front {
+  position: relative;
+}
+.envelope-face.back {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  transform: rotateY(180deg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.envelope-wrap img{
+  display:block;
+  width:100%;
+  height:auto;
+  pointer-events:none;
+  user-select:none;
+  /* Recortar bordes visibles */
+  clip-path: inset(5px 5px 5px 5px round 14px);
+}
+
+/* Texto posterior del sobre */
+.envelope-back-text {
+  text-align: center;
+  pointer-events: none;
+  user-select: none;
+}
+.envelope-back-text .back-line1,
+.envelope-back-text .back-line2 {
+  font-family: 'Caveat', cursive;
+  font-size: clamp(2.4rem, 9vw, 3.6rem);
+  font-weight: 700;
+  color: #f3eee6;
+  text-shadow: 0 2px 18px rgba(0,0,0,0.6);
+  line-height: 1.05;
+  display: block;
+}
+.envelope-back-text .back-sub {
+  font-family: 'Caveat', cursive;
+  font-size: clamp(1rem, 3.5vw, 1.25rem);
+  color: rgba(243,238,230,0.65);
+  margin-top: 10px;
+  display: block;
+  letter-spacing: 0.5px;
+}
+
+.envelope-hint{
+  position:absolute;
+  bottom:40px;
+  left:0;
+  right:0;
+  text-align:center; 
+  color:#f3eee6; 
+  font-family:'Caveat',cursive; 
+  font-size:1.5rem;
+  animation: bob 1.8s ease-in-out infinite;
+  pointer-events:none;
+}
+@keyframes bob{ 0%,100%{transform:translateY(0);} 50%{transform:translateY(-8px);} }
+
+/* ============================================================
+   INSTAGRAM-STORIES-STYLE VIEWER
+   ============================================================ */
+.stories-viewer{
+  position:fixed; inset:0; z-index:5;
+  background:#000;
+  display:none;
+  overflow:hidden;
+  touch-action:pan-y;
+}
+.stories-viewer.active{ display:block; }
+
+.story-progress{
+  position:absolute; top:14px; left:14px; right:14px; z-index:20;
+  display:flex; gap:6px;
+}
+.segment{ flex:1; height:3.5px; border-radius:3px; background:rgba(255,255,255,.3); overflow:hidden; }
+.segment-fill{ height:100%; width:0%; background:#fff; border-radius:3px; display:block; }
+.segment.done .segment-fill{ width:100%; }
+.segment.manual .segment-fill{ width:32%; opacity:.55; }
+@keyframes fillBar{ from{ width:0%; } to{ width:100%; } }
+
+.story-slides{ position:absolute; inset:0; perspective: 1200px; }
+.story-slide{
+  position:absolute; inset:0;
+  display:none; flex-direction:column; align-items:center; justify-content:center;
+  padding:92px 12px 72px;
+  overflow:hidden;
+  background:#000; /* base oscura; las slides con fondo.jpg lo tapan */
+  /* Para el efecto cubo */
+  transform-origin: center center;
+  will-change: transform, opacity;
+}
+.story-slide.current{ display:flex; }
+
+/* Slide que ENTRA desde la derecha (avanzar) */
+@keyframes cubeInFromRight {
+  from { transform: translateX(100%) rotateY(-12deg) scale(0.92); opacity: 0.4; }
+  to   { transform: translateX(0)    rotateY(0deg)   scale(1);    opacity: 1;   }
+}
+/* Slide que SALE hacia la izquierda (avanzar) */
+@keyframes cubeOutToLeft {
+  from { transform: translateX(0)     rotateY(0deg)   scale(1);    opacity: 1;   }
+  to   { transform: translateX(-100%) rotateY(12deg)  scale(0.92); opacity: 0.4; }
+}
+/* Slide que ENTRA desde la izquierda (retroceder) */
+@keyframes cubeInFromLeft {
+  from { transform: translateX(-100%) rotateY(12deg)  scale(0.92); opacity: 0.4; }
+  to   { transform: translateX(0)     rotateY(0deg)   scale(1);    opacity: 1;   }
+}
+/* Slide que SALE hacia la derecha (retroceder) */
+@keyframes cubeOutToRight {
+  from { transform: translateX(0)    rotateY(0deg)    scale(1);    opacity: 1;   }
+  to   { transform: translateX(100%) rotateY(-12deg)  scale(0.92); opacity: 0.4; }
+}
+
+.story-slide.cube-enter-right {
+  display: flex;
+  animation: cubeInFromRight 0.42s cubic-bezier(.4,0,.2,1) forwards;
+}
+.story-slide.cube-exit-left {
+  display: flex;
+  animation: cubeOutToLeft 0.42s cubic-bezier(.4,0,.2,1) forwards;
+}
+.story-slide.cube-enter-left {
+  display: flex;
+  animation: cubeInFromLeft 0.42s cubic-bezier(.4,0,.2,1) forwards;
+}
+.story-slide.cube-exit-right {
+  display: flex;
+  animation: cubeOutToRight 0.42s cubic-bezier(.4,0,.2,1) forwards;
+}
+
+.story-tap-hint{
+  position:absolute; bottom:16px; left:0; right:0; text-align:center;
+  font-family:'Caveat',cursive; font-size:1.1rem; opacity:.55; pointer-events:none;
+  transition: opacity .6s ease; z-index:15;
+  color:#fff;
+}
+.story-tap-hint.fade{ opacity:0; }
+
+/* --- CORRECCIÓN APLICADA A .outro-card --- */
+.outro-card{ 
+  width:min(92vw,420px); 
+  text-align:center; 
+  padding:20px; 
+  background: var(--paper-2);  /* <-- FONDO AÑADIDO */
+  border-radius: var(--radius); /* <-- BORDES REDONDEADOS */
+  box-shadow: var(--shadow);    /* <-- SOMBRA PARA QUE COINCIDA */
+}
+.outro-card .big-emoji{ font-size:2rem; }
+.outro-card p.credit{ font-family:'Caveat',cursive; font-size:1rem; opacity:.6; margin-top:12px; }
+.replay-btn{
+  margin-top:8px; padding:13px 24px; border:none; border-radius:999px;
+  background:linear-gradient(160deg,var(--lilac),var(--pink)); color:#fff;
+  font-family:'Quicksand'; font-weight:700; font-size:.95rem; cursor:pointer;
+  box-shadow:0 10px 18px -6px rgba(255,62,142,.4);
+}
+
+.eyebrow{
+  font-family:'Quicksand'; font-weight:700; letter-spacing:2px; text-transform:uppercase;
+  font-size:.65rem; color:var(--pink); margin-bottom:6px;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.5);
+}
+
+/* ============================================================
+   PART II — HERO SLIDE SOLO IMAGEN
+   ============================================================ */
+.hero-fullscreen {
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+.hero-fullscreen img {
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  background:#000;
+}
+
+/* ============================================================
+   DETAIL, RSVP, GIFT SLIDES
+   ============================================================ */
+.detail-card{
+  width:min(92vw,420px); background:var(--paper-2); border-radius:var(--radius);
+  box-shadow:var(--shadow); padding:18px 18px; text-align:center;
+  
+}
+.detail-card h2.shout{ font-size:1.45rem; margin-bottom:12px;}
+.info-row{
+  display:flex; align-items:flex-start; gap:14px; text-align:left;
+  padding:9px 4px; border-bottom:1px dashed rgba(0,0,0,.15);
+}
+.info-row:last-of-type{ border-bottom:none; }
+.info-icon{
+  width:34px; height:34px; flex:none; border-radius:10px;
+  background:linear-gradient(160deg,var(--pink-2),var(--pink));
+  display:flex; align-items:center; justify-content:center; font-size:15px; color:#fff;
+}
+.info-text b{ display:block; font-size:.82rem; }
+.info-text span{ font-size:.75rem; opacity:.75; }
+
+.btn-row{ display:flex; gap:8px; margin-top:14px; flex-wrap:wrap; justify-content:center;}
+.pill-btn{
+  flex:1 1 150px; text-decoration:none; text-align:center;
+  font-family:'Quicksand'; font-weight:700; font-size:.78rem;
+  padding:10px 12px; border-radius:999px; cursor:pointer; border:none;
+  box-shadow:0 8px 16px -6px rgba(0,0,0,.25);
+  transition: transform .15s ease;
+}
+.pill-btn:active{ transform:scale(.96); }
+.pill-maps{ background:var(--ink); color:#fff; }
+.pill-cal{ background:linear-gradient(160deg,var(--lilac),var(--pink)); color:#fff; }
+.pill-outline{ background:transparent; border:2px solid var(--ink); color:var(--ink); box-shadow:none;}
+
+.rsvp-card{ width:min(92vw,420px); background:var(--paper-2); border-radius:var(--radius); box-shadow:var(--shadow); padding:26px 22px; text-align:center; }
+.rsvp-card h2.shout{ font-size:1.45rem; margin-bottom:4px; }
+.rsvp-card p.sub{ font-size:.78rem; opacity:.75; margin-bottom:12px; }
+.field{ text-align:left; margin-bottom:10px; }
+.field label{ font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; opacity:.65; }
+.field input, .field textarea{
+  width:100%; margin-top:6px; padding:12px 14px; border-radius:14px;
+  border:2px solid rgba(0,0,0,.12); font-family:'Quicksand'; font-size:.95rem;
+  background:#fff; resize:vertical;
+}
+.field textarea{ min-height:60px; }
+.field input:focus, .field textarea:focus{ outline:2px solid var(--pink); border-color:transparent; }
+.rsvp-submit{
+  width:100%; margin-top:4px; padding:11px; border:none; border-radius:999px;
+  background:linear-gradient(160deg,var(--pink-2),var(--pink)); color:#fff;
+  font-family:'Quicksand'; font-weight:700; font-size:1rem; cursor:pointer;
+  box-shadow:0 10px 18px -6px rgba(255,62,142,.5);
+}
+.rsvp-submit:active{ transform:scale(.98); }
+.rsvp-note{ font-size:.68rem; opacity:.55; margin-top:8px; }
+.thankyou{
+  display:none; text-align:center; padding:20px 0;
+}
+.thankyou.show{ display:block; }
+.thankyou .big-emoji{ font-size:2.4rem; }
+
+.gift-wrap{ width:min(92vw,420px); display:flex; flex-direction:column; gap:10px; }
+.gift-card{
+  background:var(--paper-2); border-radius:18px; box-shadow:var(--shadow);
+  padding:16px 18px; text-align:center;
+}
+.gift-icon{ font-size:1.6rem; margin-bottom:4px; }
+.gift-card h3{ font-family:'Quicksand'; font-weight:700; font-size:.9rem; margin-bottom:4px; }
+.gift-card p{ font-size:.78rem; opacity:.75; margin:0 0 10px; line-height:1.35; }
+
+/* ============================================================
+   FONDO PARA SLIDES SECUNDARIAS
+   — mismo sistema que .hero-fullscreen
+   ============================================================ */
+.slide-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #000;
+}
+.slide-bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+}
+/* Desktop/landscape: contener sin distorsión igual que Slide1 */
+@media (orientation: landscape) {
+  .slide-bg img {
+    object-fit: contain;
+  }
+}
+.slide-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.06);
+  pointer-events: none;
+}
+
+/* El contenido de la slide debe ir encima del fondo */
+.story-slide .eyebrow,
+.story-slide .detail-card,
+.story-slide .rsvp-card,
+.story-slide .gift-wrap,
+.story-slide .outro-card {
+  position: relative;
+  z-index: 1;
+}
+
+/* ============================================================
+   MEDIA QUERIES PARA MÓVIL
+   ============================================================ */
+@media (max-width: 768px) {
+  .hero-fullscreen img {
+    object-fit:cover;
+  }
+  .envelope-wrap{
+    width:min(82vw, 300px);
+  }
+  .envelope-wrap.zoom{ 
+    transform: scale(4) translateY(-4vh); 
+  }
+  .detail-card h2.shout{ font-size:1.5rem; margin-bottom:14px; }
+  .rsvp-card h2.shout{ font-size:1.5rem; }
+  .detail-card, .rsvp-card { padding:20px 16px; }
+  .info-row { padding:10px 4px; }
+  .btn-row { margin-top:14px; gap:8px; }
+  .pill-btn { padding:11px 12px; font-size:.8rem; }
+  .gift-card { padding:18px 16px; }
+}
+
+/* ============================================================
+   INSTAGRAM STORIES TOP BAR — perfil + música
+   ============================================================ */
+.ig-top-bar {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  z-index: 25;
+  padding: 48px 14px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  pointer-events: none;
+}
+
+/* Foto de perfil circular */
+.ig-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.85);
+  object-fit: cover;
+  flex-shrink: 0;
+  display: block;
+  background: #333;
+  pointer-events: auto;
+}
+
+/* Nombre + canción */
+.ig-meta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1px;
+}
+.ig-username {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 0;
+  line-height: 1.2;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.45);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ig-song-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.ig-music-icon {
+  width: 12px;
+  height: 12px;
+  opacity: 0.82;
+  flex-shrink: 0;
+}
+.ig-song-name {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 11.5px;
+  font-weight: 400;
+  color: rgba(255,255,255,0.88);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+
+/* Botón 3 puntos (pausa/menú) */
+.ig-more-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  pointer-events: auto;
+  cursor: pointer;
+}
+.ig-more-btn span {
+  display: flex;
+  flex-direction: column;
+  gap: 3.5px;
+}
+.ig-more-btn span i {
+  display: block;
+  width: 3.5px;
+  height: 3.5px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.92);
+  font-style: normal;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
+
+/* Audio hidden */
+#bgAudio { display: none; }
+
+/* ============================================================
+   INSTAGRAM BOTTOM ACTION BAR
+   ============================================================ */
+.ig-bottom-bar {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  z-index: 25;
+  padding: 0 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ig-msg-input {
+  flex: 1;
+  height: 42px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(255,255,255,0.72);
+  background: transparent;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  cursor: text;
+  pointer-events: none;
+}
+.ig-msg-input span {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 14px;
+  color: rgba(255,255,255,0.78);
+  font-weight: 400;
+  letter-spacing: 0;
+  user-select: none;
+}
+
+.ig-action-btns {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+/* Ícono corazón */
+.ig-btn-heart {
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ig-btn-heart svg {
+  width: 26px;
+  height: 26px;
+  fill: none;
+  stroke: #fff;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.35));
+}
+
+/* Ícono comentario burbuja */
+.ig-btn-comment {
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ig-btn-comment svg {
+  width: 26px;
+  height: 26px;
+  fill: none;
+  stroke: #fff;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.35));
+}
+
+/* Ícono send / avión */
+.ig-btn-send {
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ig-btn-send svg {
+  width: 26px;
+  height: 26px;
+  fill: none;
+  stroke: #fff;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.35));
+}
+</style>
+</head>
+<body>
+
+<!-- =========================================================
+     PART I — ENVELOPE CON IMAGEN PNG
+========================================================== -->
+<div id="envelope-scene" onclick="abrirSobre()">
+  <div style="display:flex;flex-direction:column;align-items:center;position:relative;height:100%;justify-content:center;">
+    <div class="envelope-wrap" id="envelopeWrap">
+      <div class="envelope-flipper" id="envelopeFlipper">
+        <!-- FRENTE: la imagen del sobre -->
+        <div class="envelope-face front">
+          <img src="./sobre.png" alt="Sobre de invitación" draggable="false">
+        </div>
+        <!-- DORSO: texto "¿Estás Preparado?" -->
+        <div class="envelope-face back">
+          <div class="envelope-back-text">
+            <span class="back-line1">¿Estás</span>
+            <span class="back-line2">Preparado?</span>
+            <span class="back-sub">toca para descubrir ✨</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="envelope-hint" id="envelopeHint">toca para descubrir ↑</div>
+  </div>
+</div>
+
+<!-- =========================================================
+     PART II — STORIES VIEWER
+========================================================== -->
+<div class="stories-viewer" id="storiesViewer">
+  <div class="story-progress" id="storyProgress"></div>
+
+  <!-- INSTAGRAM TOP BAR: perfil + canción -->
+  <div class="ig-top-bar">
+    <img class="ig-avatar" src="perfil.jpg" alt="perfil">
+    <div class="ig-meta">
+      <div class="ig-username">jackelyne_n</div>
+      <div class="ig-song-row">
+        <!-- ícono de música inline SVG mini -->
+        <svg class="ig-music-icon" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M9 1.5L4.5 2.8V9" stroke="rgba(255,255,255,0.85)" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="3" cy="9.5" r="1.3" fill="rgba(255,255,255,0.85)"/>
+          <circle cx="7.5" cy="8.5" r="1.3" fill="rgba(255,255,255,0.85)"/>
+        </svg>
+        <span class="ig-song-name">I Love It (con Charli xcx)</span>
+      </div>
+    </div>
+    <div class="ig-more-btn" id="igMoreBtn" onclick="toggleAudio()">
+      <span>
+        <i></i><i></i><i></i>
+      </span>
+    </div>
+  </div>
+
+  <!-- Audio -->
+  <audio id="bgAudio" src="música.mp3" loop></audio>
+
+  <!-- INSTAGRAM BOTTOM BAR -->
+  <div class="ig-bottom-bar">
+    <div class="ig-msg-input">
+      <span>Enviar mensaje</span>
+    </div>
+    <div class="ig-action-btns">
+      <!-- Corazón -->
+      <div class="ig-btn-heart">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+        </svg>
+      </div>
+      <!-- Comentario / burbuja -->
+      <div class="ig-btn-comment">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+      </div>
+      <!-- Send / avión -->
+      <div class="ig-btn-send">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <line x1="22" y1="2" x2="11" y2="13"/>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="story-tap-hint" id="storyHint">toca los lados para navegar · mantén presionado para pausar</div>
+  <div class="story-slides">
+
+<!-- =========================================================
+     HERO — SOLO IMAGEN
+========================================================== -->
+<div class="story-slide" id="hero" data-index="0">
+  <div class="hero-fullscreen">
+    <img src="Slide1.jpg" alt="Cumpleaños de Sandra" loading="lazy" draggable="false">
+  </div>
+</div>
+
+<!-- =========================================================
+     DETAILS
+========================================================== -->
+<div class="story-slide" id="details" data-index="1">
+  <div class="slide-bg"><img src="fondo.jpg" alt="" draggable="false"></div>
+  <div class="eyebrow">no te lo pierdas</div>
+  <div class="detail-card">
+    <h2 class="shout">¿Cuándo y dónde?</h2>
+
+    <div class="info-row">
+      <div class="info-icon">📅</div>
+      <div class="info-text"><b id="detailsDate">Sábado 24 de mayo</b><span>Agrégalo a tu calendario para no olvidarlo</span></div>
+    </div>
+    <div class="info-row">
+      <div class="info-icon">🕖</div>
+      <div class="info-text"><b id="detailsTime">7:00 P.M.</b><span>Hora de llegada</span></div>
+    </div>
+    <div class="info-row">
+      <div class="info-icon">📍</div>
+      <div class="info-text"><b id="detailsPlace">Calle Cualquiera 123</b><span id="detailsPlace2">Cualquier Lugar</span></div>
+    </div>
+
+    <div class="btn-row">
+      <a class="pill-btn pill-maps" id="mapsBtn" href="#" target="_blank" rel="noopener">📍 Ver en Maps</a>
+      <a class="pill-btn pill-cal" id="googleCalBtn" href="#" target="_blank" rel="noopener">🗓️ Google Calendar</a>
+      <a class="pill-btn pill-outline" id="icsBtn" href="#">📥 Agregar (iPhone/Outlook)</a>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================
+     RSVP
+========================================================== -->
+<div class="story-slide" id="rsvp" data-index="2">
+  <div class="slide-bg"><img src="fondo.jpg" alt="" draggable="false"></div>
+  <div class="eyebrow">confirmacion</div>
+  <div class="rsvp-card">
+    <div id="rsvpForm">
+      <h2 class="shout">Confirma tu lugar</h2>
+      <p class="sub">Cuéntanos si vienes y déjale un mensaje a la cumpleañera 💌</p>
+
+      <form id="rsvpFormEl">
+        <div class="field">
+          <label for="guestName">Nombre del invitado</label>
+          <input type="text" id="guestName" name="guestName" placeholder="Escribe tu nombre" required>
+        </div>
+        <div class="field">
+          <label for="guestMsg">Mensaje para la cumpleañera</label>
+          <textarea id="guestMsg" name="guestMsg" placeholder="Escribe un mensaje bonito para Jacky..."></textarea>
+        </div>
+        <button type="submit" class="rsvp-submit">Enviar confirmación 🎉</button>
+      </form>
+      <p class="rsvp-note">* El enlace / destino final de este formulario se configurará después.</p>
+    </div>
+
+    <div class="thankyou" id="thankyouMsg">
+      <div class="big-emoji">🎊</div>
+      <h2 class="shout" style="font-size:1.6rem;margin-top:10px;">¡Gracias!</h2>
+      <p style="opacity:.8;font-size:.92rem;">Tu confirmación fue recibida. ¡Nos vemos en la fiesta!</p>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================
+     GIFTS
+========================================================== -->
+<div class="story-slide" id="gifts" data-index="3">
+  <div class="slide-bg"><img src="fondo.jpg" alt="" draggable="false"></div>
+  <div class="eyebrow">un detalle, si gustas</div>
+  <div class="gift-wrap">
+    <div class="gift-card">
+      <div class="gift-icon">💌</div>
+      <h3>Sobre</h3>
+      <p>Si prefieres darle un regalo en efectivo, habrá un sobre especial para eso el día del evento.</p>
+    </div>
+    <div class="gift-card">
+      <div class="gift-icon">🎁</div>
+      <h3>Lista de regalos</h3>
+      <p>También puedes elegir algo de la wishlist de Amazon.</p>
+      <a class="pill-btn pill-cal" style="display:inline-block;" id="wishlistBtn" href="#" target="_blank" rel="noopener">Ver wishlist</a>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================
+     OUTRO
+========================================================== -->
+<div class="story-slide" id="outro" data-index="4">
+  <div class="slide-bg"><img src="fondo.jpg" alt="" draggable="false"></div>
+  <div class="outro-card">
+    <div class="big-emoji">💌</div>
+    <h2 class="shout" style="font-size:1.8rem;margin-top:10px;">¡Eso es todo!</h2>
+    <p style="opacity:.8;font-size:.95rem;max-width:280px;margin:8px auto 0;">Gracias por abrir mi Invitacion </span>. ¡Nos vemos en la fiesta!</p>
+    <button class="replay-btn" onclick="replayStories()">Ver de nuevo ↺</button>
+  </div>
+</div>
+
+  </div>
+</div>
+
+<script>
+// ============================================================
+// CONFIG
+// ============================================================
+const CONFIG = {
+  honoreeName: "Sandra",
+  dayLabel: "Sábado",
+  dateLabel: "24 de mayo",
+  timeLabel: "7:00 P.M.",
+  addressLine1: "Calle Cualquiera 123",
+  addressLine2: "Cualquier Lugar",
+  startDateTimeISO: "2026-05-24T19:00:00",
+  endDateTimeISO: "2026-05-24T23:00:00",
+  mapsUrl: "https://www.google.com/maps/search/?api=1&query=Calle+Cualquiera+123,+Cualquier+Lugar",
+  wishlistUrl: "https://www.amazon.com/hz/wishlist/ls/EDITAR-ESTE-LINK"
+};
+
+// ============================================================
+// INICIALIZACIÓN SEGURA
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+  // Pintar textos
+  try {
+    const el = document.getElementById('honoreeName');
+    if (el) el.textContent = CONFIG.honoreeName;
+    
+    const el2 = document.getElementById('outroName');
+    if (el2) el2.textContent = CONFIG.honoreeName;
+    
+    const el3 = document.getElementById('detailsDate');
+    if (el3) el3.textContent = CONFIG.dayLabel + " " + CONFIG.dateLabel;
+    
+    const el4 = document.getElementById('detailsTime');
+    if (el4) el4.textContent = CONFIG.timeLabel;
+    
+    const el5 = document.getElementById('detailsPlace');
+    if (el5) el5.textContent = CONFIG.addressLine1;
+    
+    const el6 = document.getElementById('detailsPlace2');
+    if (el6) el6.textContent = CONFIG.addressLine2;
+    
+    const el7 = document.getElementById('mapsBtn');
+    if (el7) el7.href = CONFIG.mapsUrl;
+    
+    const el8 = document.getElementById('wishlistBtn');
+    if (el8) el8.href = CONFIG.wishlistUrl;
+  } catch(e) {
+    console.warn("Error al pintar textos:", e);
+  }
+
+  // Google Calendar
+  try {
+    const gcalUrl = "https://calendar.google.com/calendar/render?action=TEMPLATE"
+      + "&text=" + encodeURIComponent("Cumpleaños de " + CONFIG.honoreeName)
+      + "&dates=" + CONFIG.startDateTimeISO.replace(/[-:]/g,'').replace('.000','') 
+      + "/" + CONFIG.endDateTimeISO.replace(/[-:]/g,'').replace('.000','')
+      + "&details=" + encodeURIComponent("¡No faltes a la fiesta de " + CONFIG.honoreeName + "!")
+      + "&location=" + encodeURIComponent(CONFIG.addressLine1 + ", " + CONFIG.addressLine2);
+    const gcalBtn = document.getElementById('googleCalBtn');
+    if (gcalBtn) gcalBtn.href = gcalUrl;
+  } catch(e) {
+    console.warn("Error en Google Calendar:", e);
+  }
+});
+
+// ============================================================
+// FUNCIÓN GLOBAL para abrir sobre
+// ============================================================
+function abrirSobre() {
+  console.log("abrirSobre() ejecutado");
+  const wrap = document.getElementById('envelopeWrap');
+  const scene = document.getElementById('envelope-scene');
+  const hint = document.getElementById('envelopeHint');
+  const flipper = document.getElementById('envelopeFlipper');
+  
+  if (!wrap || wrap.classList.contains('zoom')) return;
+
+  // Si el dorso está visible (ya flippeó), proceder a zoom
+  if (flipper && flipper.classList.contains('flipped')) {
+    wrap.classList.add('zoom');
+    if (hint) {
+      hint.style.transition = 'opacity 0.5s ease';
+      hint.style.opacity = '0';
+    }
+    setTimeout(function() {
+      if (scene) scene.classList.add('hide');
+      console.log("Iniciando stories...");
+      startStories();
+    }, 2000);
+    return;
+  }
+
+  // Primer toque: flip de dorso → frente (revela la imagen del sobre)
+  if (flipper) {
+    flipper.classList.add('flipped');
+  }
+  if (hint) {
+    hint.style.transition = 'opacity 0.4s ease';
+    hint.style.opacity = '0';
+    setTimeout(function() {
+      if (hint) {
+        hint.textContent = 'toca el sobre para abrirlo ↑';
+        hint.style.opacity = '1';
+      }
+    }, 900);
+  }
+}
+
+document.body.style.overflow = 'hidden';
+
+// ============================================================
+// STORIES ENGINE - DEFINIR ANTES DE USAR
+// ============================================================
+const storiesViewer = document.getElementById('storiesViewer');
+const progressBar = document.getElementById('storyProgress');
+const slides = Array.from(document.querySelectorAll('.story-slide'));
+
+const manualIndexes = new Set([2, 3, 4]);
+const storyDurations = { 0: 6000, 1: 7000 };
+
+// Crear barras de progreso
+slides.forEach(function() {
+  const seg = document.createElement('div');
+  seg.className = 'segment';
+  const fill = document.createElement('div');
+  fill.className = 'segment-fill';
+  seg.appendChild(fill);
+  if (progressBar) progressBar.appendChild(seg);
+});
+const segments = progressBar ? Array.from(progressBar.children) : [];
+
+let current = 0;
+
+function isInteractive(el) {
+  if (!el || !el.closest) return false;
+  return !!el.closest('a,button,input,textarea,label,select');
+}
+
+function updateSegments() {
+  if (!segments.length) return;
+  segments.forEach(function(seg, i) {
+    seg.classList.remove('done', 'active', 'manual');
+    const fill = seg.querySelector('.segment-fill');
+    if (!fill) return;
+    fill.style.animation = 'none';
+    if (i < current) {
+      seg.classList.add('done');
+    } else if (i === current) {
+      if (manualIndexes.has(i)) {
+        seg.classList.add('manual');
+      } else {
+        seg.classList.add('active');
+        fill.style.setProperty('--dur', (storyDurations[i] || 6000) + 'ms');
+        void fill.offsetWidth;
+        fill.style.animation = 'fillBar var(--dur) linear forwards';
+      }
+    }
+  });
+}
+
+const ANIM_DUR = 420; // debe coincidir con los 0.42s del CSS
+let isAnimating = false;
+
+function goTo(i, skipAnim) {
+  if (i < 0 || i >= slides.length) return;
+  if (isAnimating && !skipAnim) return;
+
+  const prev = current;
+  current = i;
+
+  if (skipAnim || prev === i) {
+    slides.forEach(function(s) {
+      s.classList.remove('current','cube-enter-right','cube-exit-left','cube-enter-left','cube-exit-right');
+    });
+    if (slides[current]) slides[current].classList.add('current');
+    updateSegments();
+    return;
+  }
+
+  const goingForward = i > prev;
+  isAnimating = true;
+
+  const entering = slides[i];
+  const leaving  = slides[prev];
+
+  // Mostrar ambas durante la transición
+  slides.forEach(function(s) {
+    s.classList.remove('current','cube-enter-right','cube-exit-left','cube-enter-left','cube-exit-right');
+  });
+
+  if (goingForward) {
+    if (leaving)  leaving.classList.add('cube-exit-left');
+    if (entering) entering.classList.add('cube-enter-right');
+  } else {
+    if (leaving)  leaving.classList.add('cube-exit-right');
+    if (entering) entering.classList.add('cube-enter-left');
+  }
+
+  // Tras la animación, limpiar y marcar solo la entrante como current
+  setTimeout(function() {
+    slides.forEach(function(s) {
+      s.classList.remove('cube-enter-right','cube-exit-left','cube-enter-left','cube-exit-right');
+    });
+    if (slides[current]) slides[current].classList.add('current');
+    isAnimating = false;
+    updateSegments();
+  }, ANIM_DUR);
+}
+
+function storyNext() { 
+  if (current < slides.length - 1) goTo(current + 1, false); 
+}
+
+function storyPrev() { 
+  if (current > 0) goTo(current - 1, false); 
+}
+
+function replayStories() {
+  const scene = document.getElementById('envelope-scene');
+  const wrap = document.getElementById('envelopeWrap');
+  const hint = document.getElementById('envelopeHint');
+  
+  if (scene) scene.classList.remove('hide');
+  if (wrap) wrap.classList.remove('zoom');
+  const flipper2 = document.getElementById('envelopeFlipper');
+  if (flipper2) flipper2.classList.remove('flipped');
+  if (hint) {
+    hint.style.transition = 'none';
+    hint.style.opacity = '1';
+    hint.textContent = 'toca para descubrir ↑';
+    setTimeout(function() {
+      hint.style.transition = 'opacity 0.5s ease';
+    }, 50);
+  }
+  if (storiesViewer) storiesViewer.classList.remove('active');
+  goTo(0, true);
+}
+
+// Evento de fin de animación
+if (progressBar) {
+  progressBar.addEventListener('animationend', function(e) {
+    if (e.target.classList.contains('segment-fill')) {
+      storyNext();
+    }
+  });
+}
+
+function pauseCurrent() {
+  if (manualIndexes.has(current)) return;
+  const fill = segments[current]?.querySelector('.segment-fill');
+  if (fill) fill.style.animationPlayState = 'paused';
+}
+
+function resumeCurrent() {
+  if (manualIndexes.has(current)) return;
+  const fill = segments[current]?.querySelector('.segment-fill');
+  if (fill) fill.style.animationPlayState = 'running';
+}
+
+// Navegación táctil
+if (storiesViewer) {
+  let downX = 0, downTime = 0, moved = false;
+  
+  storiesViewer.addEventListener('pointerdown', function(e) {
+    if (isInteractive(e.target)) return;
+    downX = e.clientX;
+    downTime = Date.now();
+    moved = false;
+    pauseCurrent();
+  });
+  
+  storiesViewer.addEventListener('pointermove', function(e) {
+    if (Math.abs(e.clientX - downX) > 10) moved = true;
+  });
+  
+  storiesViewer.addEventListener('pointerup', function(e) {
+    if (isInteractive(e.target)) return;
+    resumeCurrent();
+    const held = Date.now() - downTime;
+    if (!moved && held < 300) {
+      const w = window.innerWidth;
+      if (e.clientX < w * 0.28) storyPrev();
+      else storyNext();
+    }
+  });
+  
+  storiesViewer.addEventListener('pointercancel', resumeCurrent);
+}
+
+// Teclado
+document.addEventListener('keydown', function(e) {
+  if (!storiesViewer || !storiesViewer.classList.contains('active')) return;
+  if (e.key === 'ArrowRight') storyNext();
+  if (e.key === 'ArrowLeft') storyPrev();
+});
+
+// ---- Audio toggle con 3 puntos ----
+let audioPlaying = false;
+function toggleAudio() {
+  const audio = document.getElementById('bgAudio');
+  if (!audio) return;
+  if (audioPlaying) {
+    audio.pause();
+    audioPlaying = false;
+  } else {
+    audio.play().catch(function(){});
+    audioPlaying = true;
+  }
+}
+
+function startStories() {
+  console.log("startStories() ejecutado");
+  if (!storiesViewer) return;
+  storiesViewer.classList.add('active');
+  goTo(0, true);
+  // Intentar reproducir música automáticamente al abrir
+  const audio = document.getElementById('bgAudio');
+  if (audio) {
+    audio.play().then(function() {
+      audioPlaying = true;
+    }).catch(function(){
+      // Autoplay bloqueado; el usuario puede tocar los 3 puntos
+    });
+  }
+  setTimeout(function() {
+    const hint = document.getElementById('storyHint');
+    if (hint) hint.classList.add('fade');
+  }, 3500);
+}
+
+// ---- .ics ----
+document.getElementById('icsBtn').addEventListener('click', function(e) {
+  e.preventDefault();
+  function pad(n) { return String(n).padStart(2, '0'); }
+  function toICS(iso) {
+    const d = new Date(iso);
+    return d.getUTCFullYear() + pad(d.getUTCMonth() + 1) + pad(d.getUTCDate()) + "T"
+      + pad(d.getUTCHours()) + pad(d.getUTCMinutes()) + pad(d.getUTCSeconds()) + "Z";
+  }
+  const ics = [
+    "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Invitacion//ES",
+    "BEGIN:VEVENT",
+    "UID:" + Date.now() + "@invitacion",
+    "DTSTAMP:" + toICS(new Date().toISOString()),
+    "DTSTART:" + toICS(CONFIG.startDateTimeISO),
+    "DTEND:" + toICS(CONFIG.endDateTimeISO),
+    "SUMMARY:Cumpleaños de " + CONFIG.honoreeName,
+    "DESCRIPTION:¡No faltes a la fiesta de " + CONFIG.honoreeName + "!",
+    "LOCATION:" + CONFIG.addressLine1 + ", " + CONFIG.addressLine2,
+    "END:VEVENT", "END:VCALENDAR"
+  ].join("\r\n");
+  const blob = new Blob([ics], { type: "text/calendar" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = "cumpleanos-" + CONFIG.honoreeName.toLowerCase() + ".ics";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+
+// ---- RSVP ----
+document.getElementById('rsvpFormEl').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const name = document.getElementById('guestName').value;
+  const msg = document.getElementById('guestMsg').value;
+  console.log("RSVP recibido:", { name, msg });
+  document.getElementById('rsvpForm').style.display = 'none';
+  document.getElementById('thankyouMsg').classList.add('show');
+  setTimeout(function() { storyNext(); }, 1600);
+});
+
+// Inicializar mostrando la primera slide
+goTo(0, true);
+</script>
+</body>
+</html>
