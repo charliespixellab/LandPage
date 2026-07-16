@@ -402,7 +402,7 @@
     .step-title { font-weight: 600; font-size: 1rem; color: var(--ink); }
     .step-desc { font-size: .85rem; color: var(--ink2); line-height: 1.6; }
 
-    /* ── PRICING ── */
+     /* ── PRICING ── */
     .pricing-grid {
       display: flex; flex-wrap: wrap; gap: 1.4rem;
       justify-content: center; align-items: flex-end;
@@ -411,7 +411,7 @@
     .price-card {
       background: var(--white); border: 2px solid var(--pearl);
       border-radius: 22px; padding: 2rem 1.8rem;
-      width: 100%; max-width: 300px;
+      width: 100%; max-width: 280px;
       display: flex; flex-direction: column;
       transition: var(--transition);
       position: relative;
@@ -483,39 +483,6 @@
       transition: var(--transition);
     }
     .price-card.featured .feat-check { background: rgba(74,124,89,.3); color: #7ec898; }
-
-    /* ── TESTIMONIALS ── */
-    #testimonials { background: var(--bg2); }
-    .testi-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr));
-      gap: 1.4rem; margin-top: 3rem;
-    }
-    .testi-card {
-      background: var(--white); border: 2px solid var(--pearl);
-      border-radius: var(--radius); padding: 1.8rem;
-      transition: var(--transition);
-    }
-    .testi-card:hover { 
-      border-color: var(--sage); 
-      box-shadow: var(--shadow);
-      transform: translateY(-4px);
-    }
-    .stars { color: var(--gold); font-size: 1rem; letter-spacing: .08em; margin-bottom: .9rem; }
-    .testi-text {
-      font-family: 'Playfair Display', serif;
-      font-style: italic; font-size: .95rem;
-      color: var(--ink2); line-height: 1.7; margin-bottom: 1.2rem;
-    }
-    .testi-author { display: flex; align-items: center; gap: .8rem; }
-    .testi-avatar {
-      width: 40px; height: 40px; border-radius: 50%;
-      background: linear-gradient(135deg, var(--sage), #3d6b4a);
-      color: var(--white);
-      display: flex; align-items: center; justify-content: center;
-      font-weight: 700; font-size: .9rem; flex-shrink: 0;
-    }
-    .testi-name { font-weight: 600; font-size: .88rem; }
-    .testi-role { font-size: .75rem; color: var(--ink2); }
 
     /* ── CTA FINAL ── */
     #cta {
